@@ -1,0 +1,99 @@
+.history-page { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+
+.history-page h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px,5vw,56px); font-weight: 900;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.history-subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; }
+
+/* Stats row */
+.history-stats {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 14px; margin-bottom: 28px;
+}
+.hstat {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px; position: relative; overflow: hidden;
+}
+.hstat::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; }
+.hstat.total::after    { background: var(--accent); }
+.hstat.completed::after{ background: var(--success); }
+.hstat.pending::after  { background: var(--warning); }
+.hstat.cancelled::after{ background: var(--danger); }
+.hstat-num { font-family:'Barlow Condensed',sans-serif; font-size:40px; font-weight:900; line-height:1; margin-bottom:4px; }
+.hstat-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-secondary); }
+
+/* Filters */
+.history-filters {
+  display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.filter-tab {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: 20px; padding: 8px 18px; font-size: 13px;
+  font-weight: 600; color: var(--text-secondary); cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-tab:hover { color: var(--text-primary); }
+.filter-tab.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+/* Booking cards */
+.history-list { display: flex; flex-direction: column; gap: 14px; }
+
+.hcard {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 22px 24px; transition: border-color 0.2s;
+}
+.hcard:hover { border-color: var(--border-light); }
+
+.hcard-top {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+}
+.hcard-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+}
+.hcard-avatar-letter {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; color: #000; flex-shrink: 0;
+}
+.hcard-info { flex: 1; }
+.hcard-title { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+.hcard-sub   { font-size: 13px; color: var(--text-secondary); }
+
+.hcard-meta {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  padding: 14px 0; border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); margin-bottom: 14px;
+}
+.hmeta-item { display: flex; flex-direction: column; gap: 3px; }
+.hmeta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+.hmeta-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+.hcard-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+/* Review display */
+.review-display {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,167,38,0.08); border: 1px solid rgba(255,167,38,0.2);
+  border-radius: 10px; padding: 10px 14px;
+  margin-top: 12px;
+}
+.review-stars { color: var(--warning); font-size: 16px; }
+.review-comment { font-size: 13px; color: var(--text-secondary); }
+
+/* Report display */
+.report-display {
+  background: rgba(161,139,250,0.08); border: 1px solid rgba(161,139,250,0.2);
+  border-radius: 10px; padding: 14px; margin-top: 12px;
+}
+.report-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a78bfa; margin-bottom: 6px; }
+.report-text  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.no-history {
+  text-align: center; padding: 80px 24px;
+  color: var(--text-secondary);
+}
+.no-history-icon { font-size: 56px; margin-bottom: 16px; }
+.no-history h3 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }

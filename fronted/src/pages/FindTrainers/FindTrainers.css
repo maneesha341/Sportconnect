@@ -1,0 +1,107 @@
+.find-page { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+
+.find-header { margin-bottom: 28px; }
+.find-header h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(42px, 7vw, 72px);
+  font-weight: 900; text-transform: uppercase; line-height: 1; color: #fff;
+}
+.find-header p { color: var(--accent-cyan); font-size: 14px; margin-top: 6px; }
+
+.filters-bar {
+  display: flex; gap: 12px; margin-bottom: 28px;
+  flex-wrap: wrap; align-items: center;
+}
+.search-wrap { flex: 1; min-width: 260px; position: relative; }
+.search-wrap input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 40px;
+  padding: 14px 20px 14px 46px;
+  color: var(--text-primary); font-size: 14px; outline: none;
+  transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+
+.filter-select {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: 40px; padding: 12px 20px; color: var(--text-primary);
+  font-size: 14px; outline: none; min-width: 140px;
+}
+
+.rating-filters { display: flex; gap: 6px; }
+.rating-btn {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: 20px; padding: 10px 18px; color: var(--text-secondary);
+  font-size: 13px; font-weight: 600; transition: all 0.2s;
+}
+.rating-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+/* Trainer Cards */
+.trainers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.trainer-card {
+  background: #13162a;
+  border: 1px solid #1e2535;
+  border-radius: 18px;
+  padding: 28px 24px 20px;
+  position: relative;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.trainer-card:hover { transform: translateY(-3px); border-color: #2a3348; }
+
+.avail-badge {
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(0,230,118,0.15);
+  color: var(--success);
+  border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 5px;
+}
+.avail-badge::before {
+  content: ''; width: 6px; height: 6px;
+  background: var(--success); border-radius: 50%;
+}
+
+.trainer-avatar {
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 22px; color: #000;
+  margin-bottom: 16px;
+}
+
+.trainer-name { font-size: 20px; font-weight: 800; margin-bottom: 2px; color: #fff; }
+.trainer-sport-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
+
+.trainer-rating {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 12px; font-size: 13px; color: var(--text-secondary);
+}
+.stars { font-size: 16px; }
+.star-filled { color: #f59e0b; }
+.star-empty  { color: #374151; }
+
+.trainer-meta {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 20px; font-size: 13px; color: var(--text-secondary);
+}
+
+.trainer-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 16px; border-top: 1px solid #1e2535;
+}
+.trainer-price {
+  font-size: 26px; font-weight: 900;
+  color: var(--accent); text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.trainer-price span { font-size: 13px; color: var(--text-secondary); font-weight: 400; font-family: 'DM Sans', sans-serif; }
+
+.no-results { text-align: center; padding: 80px 0; color: var(--text-secondary); font-size: 15px; }
