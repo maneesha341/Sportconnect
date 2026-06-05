@@ -17,7 +17,10 @@ app.use('/api/bookings',      require('./routes/bookings'));
 app.use('/api/messages',      require('./routes/messages'));
 app.use('/api/ai',            require('./routes/ai'));
 app.use('/api/admin',         require('./routes/admin'));
-
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB error:', err));
