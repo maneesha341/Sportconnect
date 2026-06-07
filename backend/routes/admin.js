@@ -5,10 +5,8 @@ const User = require('../models/User');
 const Trainer = require('../models/Trainer');
 const Booking = require('../models/Booking');
 const Message = require('../models/Message');
-const Notification = require('../models/Notification');
 const { createNotification } = require('./notifications');
 
-// Admin middleware — only admin role allowed
 const adminOnly = async (req, res, next) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Admin access required' });
@@ -16,7 +14,6 @@ const adminOnly = async (req, res, next) => {
   next();
 };
 
-// ── STATS ──
 // GET /api/admin/stats
 router.get('/stats', auth, adminOnly, async (req, res) => {
   try {
@@ -24,6 +21,7 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
       totalUsers, totalColleges, totalTrainers,
       totalBookings, completedBookings, pendingBookings,
       cancelledBookings, totalMessages,
+      pendingApprovals,
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ role: 'college' }),
@@ -33,17 +31,15 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
       Booking.countDocuments({ status: 'pending' }),
       Booking.countDocuments({ status: 'cancelled' }),
       Message.countDocuments(),
+      Trainer.countDocuments({ approvalStatus: 'pending' }),
     ]);
 
-    // Recent registrations (last 7 days)
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const newUsers = await User.countDocuments({ createdAt: { $gte: weekAgo } });
 
-    // Top rated trainers
-    const topTrainers = await Trainer.find({ rating: { $gt: 0 } })
+    const topTrainers = await Trainer.find({ rating: { $gt: 0 }, approvalStatus: 'approved' })
       .sort({ rating: -1 }).limit(5);
 
-    // Recent bookings
     const recentBookings = await Booking.find()
       .populate('collegeId', 'name')
       .populate('trainerId', 'name')
@@ -54,14 +50,13 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
       totalUsers, totalColleges, totalTrainers,
       totalBookings, completedBookings, pendingBookings,
       cancelledBookings, totalMessages, newUsers,
-      topTrainers, recentBookings,
+      pendingApprovals, topTrainers, recentBookings,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// ── USERS ──
 // GET /api/admin/users
 router.get('/users', auth, adminOnly, async (req, res) => {
   try {
@@ -76,7 +71,7 @@ router.get('/users', auth, adminOnly, async (req, res) => {
   }
 });
 
-// PUT /api/admin/users/:id/suspend — toggle suspend
+// PUT /api/admin/users/:id/suspend
 router.put('/users/:id/suspend', auth, adminOnly, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -87,7 +82,7 @@ router.put('/users/:id/suspend', auth, adminOnly, async (req, res) => {
       user._id,
       user.suspended ? '⛔ Account Suspended' : '✅ Account Reinstated',
       user.suspended
-        ? 'Your account has been suspended by the admin. Contact support.'
+        ? 'Your account has been suspended by admin. Contact support.'
         : 'Your account has been reinstated. Welcome back!',
       'status', '/'
     );
@@ -108,12 +103,68 @@ router.delete('/users/:id', auth, adminOnly, async (req, res) => {
   }
 });
 
-// ── TRAINERS ──
-// GET /api/admin/trainers
+// GET /api/admin/trainers — all trainers including pending
 router.get('/trainers', auth, adminOnly, async (req, res) => {
   try {
-    const trainers = await Trainer.find().sort({ createdAt: -1 });
+    const { status } = req.query;
+    let query = {};
+    if (status && status !== 'all') query.approvalStatus = status;
+    const trainers = await Trainer.find(query).sort({ createdAt: -1 });
     res.json(trainers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PUT /api/admin/trainers/:id/approve — approve trainer
+router.put('/trainers/:id/approve', auth, adminOnly, async (req, res) => {
+  try {
+    const trainer = await Trainer.findByIdAndUpdate(
+      req.params.id,
+      {
+        approvalStatus: 'approved',
+        verified:       true,
+        approvedAt:     new Date(),
+        rejectionReason: '',
+      },
+      { new: true }
+    );
+    if (!trainer) return res.status(404).json({ message: 'Trainer not found' });
+
+    await createNotification(
+      trainer.userId,
+      '✅ Profile Approved!',
+      'Congratulations! Your trainer profile has been approved. You are now visible to colleges on SportConnect.',
+      'status', '/trainer-profile'
+    );
+    res.json(trainer);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PUT /api/admin/trainers/:id/reject — reject trainer
+router.put('/trainers/:id/reject', auth, adminOnly, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const trainer = await Trainer.findByIdAndUpdate(
+      req.params.id,
+      {
+        approvalStatus:  'rejected',
+        verified:        false,
+        rejectionReason: reason || 'Profile incomplete or invalid credentials',
+      },
+      { new: true }
+    );
+    if (!trainer) return res.status(404).json({ message: 'Trainer not found' });
+
+    await createNotification(
+      trainer.userId,
+      '❌ Profile Not Approved',
+      `Your trainer profile was not approved. Reason: ${reason || 'Profile incomplete'}. Please update your profile and contact admin.`,
+      'status', '/trainer-profile'
+    );
+    res.json(trainer);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -130,7 +181,7 @@ router.put('/trainers/:id/verify', auth, adminOnly, async (req, res) => {
       trainer.userId,
       trainer.verified ? '✅ Profile Verified!' : '⚠️ Verification Removed',
       trainer.verified
-        ? 'Your trainer profile has been verified by admin. A verified badge now shows on your card!'
+        ? 'Your trainer profile has been verified! A verified badge now shows on your card.'
         : 'Your trainer verification has been removed by admin.',
       'status', '/trainer-profile'
     );
@@ -140,7 +191,6 @@ router.put('/trainers/:id/verify', auth, adminOnly, async (req, res) => {
   }
 });
 
-// ── BOOKINGS ──
 // GET /api/admin/bookings
 router.get('/bookings', auth, adminOnly, async (req, res) => {
   try {

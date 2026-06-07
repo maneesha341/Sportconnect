@@ -1,34 +1,43 @@
-// Run ONCE to create admin account
-// Command: node createAdmin.js
-
+// Run: node createAdmin.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
 
-const User = require('./models/User');
+// ── PASTE YOUR ATLAS URI HERE ──
+const MONGO_URI = 'mongodb+srv://kadavurumaneesha:Maneesha123@cluster0.5zsysca.mongodb.net/sportconnect?retryWrites=true&w=majority&appName=Cluster0';
+
+const UserSchema = new mongoose.Schema({
+  name:      { type: String, required: true },
+  email:     { type: String, required: true, unique: true },
+  password:  { type: String, required: true },
+  role:      { type: String, enum: ['college', 'trainer', 'admin'], required: true },
+  suspended: { type: Boolean, default: false },
+}, { timestamps: true });
+
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 async function createAdmin() {
-  await mongoose.connect(process.env.MONGO_URI);
-  console.log('✅ Connected to MongoDB');
+  console.log('Connecting to MongoDB Atlas...');
+  await mongoose.connect(MONGO_URI);
+  console.log('Connected!');
 
-  // Remove existing admin if any (fresh start)
+  // Remove existing admin
   await User.deleteMany({ role: 'admin' });
-  console.log('Old admin removed (if any)');
+  console.log('Old admin removed');
 
   const hashed = await bcrypt.hash('admin123', 10);
-  const admin = await User.create({
+  await User.create({
     name:     'Admin',
     email:    'admin@sportconnect.com',
     password: hashed,
     role:     'admin',
   });
 
-  console.log('\n✅ Admin account created successfully!');
+  console.log('\n✅ Admin created successfully!');
   console.log('─────────────────────────────────');
   console.log('Email    : admin@sportconnect.com');
   console.log('Password : admin123');
   console.log('─────────────────────────────────');
-  console.log('Login at http://localhost:3000/login');
+  console.log('Login at: https://sportconnect-chi.vercel.app/login');
   process.exit(0);
 }
 

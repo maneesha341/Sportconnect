@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Trainer = require('../models/Trainer');
 
-// GET /api/trainers/my/profile  (must be BEFORE /:id)
+// GET /api/trainers/my/profile — must be BEFORE /:id
 router.get('/my/profile', auth, async (req, res) => {
   try {
     const trainer = await Trainer.findOne({ userId: req.user.id });
@@ -28,19 +28,23 @@ router.put('/my/profile', auth, async (req, res) => {
   }
 });
 
-// GET /api/trainers
+// GET /api/trainers — ONLY show approved trainers to public
 router.get('/', async (req, res) => {
   try {
     const { sport, search } = req.query;
-    let query = {};
+
+    // Only show approved trainers in public listing
+    let query = { approvalStatus: 'approved' };
+
     if (sport) query.sports = { $in: [sport] };
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
+        { name:     { $regex: search, $options: 'i' } },
         { location: { $regex: search, $options: 'i' } },
-        { sports: { $in: [new RegExp(search, 'i')] } }
+        { sports:   { $in: [new RegExp(search, 'i')] } },
       ];
     }
+
     const trainers = await Trainer.find(query);
     res.json(trainers);
   } catch (err) {
@@ -48,7 +52,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/trainers/:id
+// GET /api/trainers/:id — single trainer
 router.get('/:id', async (req, res) => {
   try {
     const trainer = await Trainer.findById(req.params.id);
