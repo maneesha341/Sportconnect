@@ -89,7 +89,7 @@ export default function FindTrainers() {
     <div className="find-page">
       <div className="find-header">
         <h1>Find Trainers</h1>
-        <p>Real coaches from your MongoDB database</p>
+        
       </div>
 
       <div className="filters-bar">
